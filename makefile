@@ -1,2 +1,2 @@
 compile:
-	gcc volumen.c -o "volumen"
+	gcc volumen.c -lm -o "volumen" 
