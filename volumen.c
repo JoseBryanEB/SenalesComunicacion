@@ -21,23 +21,28 @@ if (file1!=NULL){
     for (int i=40;i<44;i++){
          size|=(cabecera[i])<<(8*i);
         }
+    size/=2;
   printf(" %d\n",size);
-	int valor;
+	 
     if (cabecera[34]==16)flagBits=1;    
     fwrite(cabecera,1,44,file2);
     while  (!feof(file1) && size--){
-		char c1=0x00,c0=fgetc(file1);
+		short valor=0;
+		unsigned char c1=0x00,c0=fgetc(file1);
         if (!feof(file1))c1=fgetc(file1);
 		valor=c0|c1<<8;
 		valor=valor>>1;
-		int salida=0x00;
+		 short salida=0x00;
 		salida=((valor&0xff)<<8)|((valor>>8)&0xff);
-		char salfile[2];
-		printf("entrada %d| salida %d\n",c0|c1<<8,valor);
+		unsigned char salfile[2];
+		printf("entrada %x| salida %x\n",c0|c1<<8,salida&0xffff);
 		salfile[0]= (salida>>8)&0xff;
 		salfile[1]=(salida)&0xff;
 		fwrite(salfile,1,2,file2);
     }  
+    while (!feof(file1)){
+		fputc(fgetc(file1),file2);
+		}
 
 
 
