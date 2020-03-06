@@ -31,11 +31,11 @@ if (file1!=NULL){
 		unsigned char c1=0x00,c0=fgetc(file1);
         if (!feof(file1))c1=fgetc(file1);
 		valor=c0|c1<<8;
-		valor=valor>>1;
+		valor=valor*.3;
 		 short salida=0x00;
 		salida=((valor&0xff)<<8)|((valor>>8)&0xff);
 		unsigned char salfile[2];
-		printf("entrada %x| salida %x\n",c0|c1<<8,salida&0xffff);
+		//printf("entrada %x| salida %x\n",c0|c1<<8,salida&0xffff);
 		salfile[0]= (salida>>8)&0xff;
 		salfile[1]=(salida)&0xff;
 		fwrite(salfile,1,2,file2);
@@ -49,5 +49,6 @@ if (file1!=NULL){
 }
 else return -1;
 fclose(file1);
+fclose(file2);
 return 0;
 }
