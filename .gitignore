@@ -1,3 +1,7 @@
 /volumen/volumen
 *.wav
 bin/
+Convolucion/convolucion
+Convolucion/entrada.wav
+Convolucion/salida.raw
+Convolucion/salida.wav

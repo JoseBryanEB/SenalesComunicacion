@@ -23,16 +23,17 @@ outputf=fopen(argv[2],"wb");
 if (inputf==NULL || outputf==NULL)return -1;
 unsigned char header[44];
 int flagread=fread(header,1,44,inputf);
+//fwrite(header,1,44,outputf);
 
 if (flagread<44)return -1;
 
 char wavfile[5]={header[8], header[9],header[10],header[11],'\0'};
 if (strcmp(wavfile,"WAVE")!=0)return -1;
-//printf("success");
+printf("success");
 int bytesSample=header[34]/8;
 unsigned int sizeRead=0;
 for (int i=40;i<44;i++){
-         sizeRead|=(header[i])<<(8*i);
+         sizeRead|=header[i]<<(8*i);
         }
 sizeRead/=bytesSample;
 // lectura de muestras
@@ -42,7 +43,7 @@ case 1:{
     float muestras1[sizeRead];
     // lectura de datps
     for  (int i=0 ;i<sizeRead;i++){
-		int c1=0x00;
+		unsigned char c1=0x00;
         c1=fgetc(inputf);
         muestras1[i]=c1/255.0;
     } 
@@ -51,7 +52,7 @@ case 1:{
     */ 
     float out[100+sizeRead];
     if(!convolve1D(muestras1,out,sizeRead,muestra_del_circuito,100))return 0;
-    for (int i=0;i<sizeRead+100;i++){
+    for (int i=0;i<sizeRead;i++){
         fputc(out[i]*=0xff,outputf);
     }
 
@@ -75,7 +76,7 @@ case 2:{
     //convolucion
     float out[100+sizeRead];
     if(!convolve1D(muestras2,out,sizeRead,muestra_del_circuito,100))return 0;
-    for (int i=0;i<sizeRead+100;i++){
+    for (int i=0;i<sizeRead;i++){
         out[i]*=65535.0;
        short salida=out[i];
 		salida=((salida&0xff)<<8)|((salida>>8)&0xff);
@@ -92,6 +93,8 @@ case 2:{
 default:
     break;
 }
+fclose(inputf);
+fclose(outputf);
 return 0;
 
 }
