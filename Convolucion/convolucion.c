@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<string.h>
-int convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize);
+int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize);
 int main(char argc, char *argv[]){
-    float muestra_del_circuito[100]={
+    double muestra_del_circuito[100]={
 0.99997 ,0.75201 ,0.56555 ,0.42532 ,0.31985 ,0.24054 ,0.18091 ,0.13605 ,
 0.10229 ,0.07693 ,0.05786 ,0.04352 ,0.03271 ,0.02460 ,0.01849 ,0.01392 ,0.01047 ,0.00787 ,
 0.00592 ,0.00443 ,0.00333 ,0.00250 ,0.00189 ,0.00140 ,0.00107 ,0.00079 ,0.00058 ,0.00043 ,
@@ -40,20 +40,20 @@ sizeRead/=bytesSample;
 switch (bytesSample)
 {
 case 1:{
-    float muestras1[sizeRead];
+    double muestras1[sizeRead];
     // lectura de datps
     for  (int i=0 ;i<sizeRead;i++){
-		unsigned char c1=0x00;
+		int c1=0x00;
         c1=fgetc(inputf);
-        muestras1[i]=c1/255.0;
+        muestras1[i]=c1/256.0;
     } 
     /*
     Convolucion de 1d a 1d en un solo espacio X[n]
     */ 
-    float out[100+sizeRead];
+    double out[100+sizeRead];
     if(!convolve1D(muestras1,out,sizeRead,muestra_del_circuito,100))return 0;
     for (int i=0;i<sizeRead;i++){
-        fputc(out[i]*=0xff,outputf);
+        fputc(out[i]*=256.0,outputf);
     }
 
 
@@ -64,7 +64,7 @@ case 1:{
 case 2:{
     //lectura de datos
     printf("16 bits");
-    float muestras2[sizeRead];
+    double muestras2[sizeRead];
     for  (int i=0 ;i<sizeRead;i++){
 		short valor=0;
 		char c1=0x00,c0=fgetc(inputf);
@@ -74,11 +74,11 @@ case 2:{
        // printf("valor: %f",muestras2[i]);
     }
     //convolucion
-    float out[100+sizeRead];
+    double out[100+sizeRead];
     if(!convolve1D(muestras2,out,sizeRead,muestra_del_circuito,100))return 0;
     for (int i=0;i<sizeRead;i++){
         out[i]*=65535.0;
-       short salida=out[i];
+        unsigned short salida=out[i];
 		salida=((salida&0xff)<<8)|((salida>>8)&0xff);
 		unsigned char salfile[2];
 		//printf("entrada %x| salida %x\n",c0|c1<<8,salida&0xffff);
@@ -99,7 +99,7 @@ return 0;
 
 }
 
-int convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize)
 {
     int i, j, k;
 
