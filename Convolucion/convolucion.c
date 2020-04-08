@@ -23,7 +23,7 @@ outputf=fopen(argv[2],"wb");
 if (inputf==NULL || outputf==NULL)return -1;
 unsigned char header[44];
 int flagread=fread(header,1,44,inputf);
-//fwrite(header,1,44,outputf);
+fwrite(header,1,44,outputf);
 
 if (flagread<44)return -1;
 
@@ -53,7 +53,7 @@ case 1:{
     double out[100+sizeRead];
     if(!convolve1D(muestras1,out,sizeRead,muestra_del_circuito,100))return 0;
     for (int i=0;i<sizeRead;i++){
-        fputc(out[i]*=256.0,outputf);
+        fputc(((char)(out[i]*=256.0))-128,outputf);
     }
 
 
@@ -67,7 +67,7 @@ case 2:{
     double muestras2[sizeRead];
     for  (int i=0 ;i<sizeRead;i++){
 		short valor=0;
-		char c1=0x00,c0=fgetc(inputf);
+		unsigned char c1=0x00,c0=fgetc(inputf);
         c1=fgetc(inputf);
 		valor=c0|c1<<8;
         muestras2[i]=valor/65535.0;
@@ -78,7 +78,7 @@ case 2:{
     if(!convolve1D(muestras2,out,sizeRead,muestra_del_circuito,100))return 0;
     for (int i=0;i<sizeRead;i++){
         out[i]*=65535.0;
-        unsigned short salida=out[i];
+        short salida=out[i];
 		salida=((salida&0xff)<<8)|((salida>>8)&0xff);
 		unsigned char salfile[2];
 		//printf("entrada %x| salida %x\n",c0|c1<<8,salida&0xffff);
@@ -93,6 +93,9 @@ case 2:{
 default:
     break;
 }
+ while (!feof(inputf)){
+		fputc(fgetc(inputf),outputf);
+		}
 fclose(inputf);
 fclose(outputf);
 return 0;

@@ -28,7 +28,7 @@ if (file1!=NULL){
     fwrite(cabecera,1,44,file2);
     while  (!feof(file1) && size--){
 		short valor=0;
-		char c1=0x00,c0=fgetc(file1);
+		unsigned char c1=0x00,c0=fgetc(file1);
         if (!feof(file1))c1=fgetc(file1);
 		valor=c0|c1<<8;
 		valor=valor>>1;
