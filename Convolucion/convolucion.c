@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<string.h>
-int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize);
+int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize,double *max);
 int main(char argc, char *argv[]){
     double muestra_del_circuito[100]={
 0.99997 ,0.75201 ,0.56555 ,0.42532 ,0.31985 ,0.24054 ,0.18091 ,0.13605 ,
@@ -23,7 +23,7 @@ outputf=fopen(argv[2],"wb");
 if (inputf==NULL || outputf==NULL)return -1;
 unsigned char header[44];
 int flagread=fread(header,1,44,inputf);
-fwrite(header,1,44,outputf);
+//fwrite(header,1,44,outputf);
 
 if (flagread<44)return -1;
 
@@ -43,17 +43,22 @@ case 1:{
     double muestras1[sizeRead];
     // lectura de datps
     for  (int i=0 ;i<sizeRead;i++){
-		int c1=0x00;
+		int c1=0x0;
         c1=fgetc(inputf);
-        muestras1[i]=c1/256.0;
+        muestras1[i]=(c1-128)/128.0;
+        if (i<50)printf("%f \n",(c1-128)/128.0);
     } 
     /*
     Convolucion de 1d a 1d en un solo espacio X[n]
     */ 
+    printf("resultados\n");
     double out[100+sizeRead];
-    if(!convolve1D(muestras1,out,sizeRead,muestra_del_circuito,100))return 0;
+    //revisar max
+    double max=0.0;
+    if(!convolve1D(muestras1,out,sizeRead,muestra_del_circuito,100,&max))return 0;
     for (int i=0;i<sizeRead;i++){
-        fputc(((char)(out[i]*=256.0))-128,outputf);
+        printf("%f\n",out[i]);
+        fputc(((out[i])*128/max),outputf);
     }
 
 
@@ -75,7 +80,7 @@ case 2:{
     }
     //convolucion
     double out[100+sizeRead];
-    if(!convolve1D(muestras2,out,sizeRead,muestra_del_circuito,100))return 0;
+    if(!convolve1D(muestras2,out,sizeRead,muestra_del_circuito,100,&sizeRead))return 0;
     for (int i=0;i<sizeRead;i++){
         out[i]*=65535.0;
         short salida=out[i];
@@ -93,16 +98,17 @@ case 2:{
 default:
     break;
 }
+/*
  while (!feof(inputf)){
 		fputc(fgetc(inputf),outputf);
-		}
+		}*/
 fclose(inputf);
 fclose(outputf);
 return 0;
 
 }
 
-int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize)
+/*int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernelSize)
 {
     int i, j, k;
 
@@ -128,5 +134,16 @@ int convolve1D(double* in, double* out, int dataSize, double* kernel, int kernel
             out[i] += in[j] * kernel[k];
     }
 
+    return 1;
+}*/
+
+int convolve1D(double* x, double* y, int PUNTOS_X, double* h, int PUNTOS_H,double *max)
+{
+    int i,j;
+    for(i=0;i<PUNTOS_X; i++)
+        for(j=0;j<PUNTOS_H;j++){
+            y[i+j]=y[i+j]+x[i]*h[j];
+            if ((*max)<y[i+j])(*max)=y[j+i];
+        }
     return 1;
 }

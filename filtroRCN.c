@@ -12,8 +12,10 @@ long N;
 char *fin;
 if (argc>1)
 N=strtol(argv[1],&fin,10);
-double a[2]={2,-2};
-double b[2]={2.7124, -1.2876};
+//double a[2]={2,-2};
+//double b[2]={2.7124, -1.2876};
+double a[2]={1,1};
+double b[2]={8.01873299035259, -6.01873299035259};
 double x[2]={0,0};
 double y[2]={0,0};
 do{
