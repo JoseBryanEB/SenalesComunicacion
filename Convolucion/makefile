@@ -1,2 +1,2 @@
 makeandrun:
-	gcc -Wall -o convolucion convolucion.c
+	gcc -Wall -lm -o convolucion convolucion.c
