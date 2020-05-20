@@ -50,6 +50,8 @@ sizeRead/=bytesSample;
 switch (bytesSample)
 {
 case 1:{
+    char a= 20;
+    printf("%d",(unsigned char)a);
     double muestras1[sizeRead];
     // lectura de datps
     for  (int i=0 ;i<sizeRead;i++){
