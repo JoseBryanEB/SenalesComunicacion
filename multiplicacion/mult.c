@@ -54,7 +54,7 @@ SizeRead[0]/=byteSample[0];
 SizeRead[1]/=byteSample[1];
 if (SizeRead[0]>SizeRead[1])fwrite(header,1,44,outputf);
 else fwrite(header2,1,44,outputf);
-while (SizeRead[0]>0 || SizeRead[1]>0){
+while (SizeRead[0]>0 && SizeRead[1]>0){
     complex entrada[2],salida;
     for (int i=0;i<2 ;i++){entrada[i].real=0;entrada[i].imaginario=0;}
     //Extraer muestras del primer archivo
@@ -63,11 +63,12 @@ while (SizeRead[0]>0 || SizeRead[1]>0){
         if (byteSample[0]==1){
             int c1=0x0;
             c1=fgetc(inputf1);
-            if (i==0){
+            if (i==0){ //1 canal
                 
                 entrada[0].real=(c1-128)/128.0;
             }
             else{
+                 SizeRead[0]--;
                 entrada[0].imaginario=(c1-128)/128.0;
             }
         }
@@ -82,8 +83,9 @@ while (SizeRead[0]>0 || SizeRead[1]>0){
             }
             else{
                 entrada[0].imaginario=valor/32767.0;
+                 SizeRead[0]--;
             } 
-        SizeRead[0]--;
+       
         }
         SizeRead[0]--;
     }
@@ -99,6 +101,7 @@ while (SizeRead[0]>0 || SizeRead[1]>0){
             }
             else{
                 entrada[1].imaginario=(c1-128)/128.0;
+                SizeRead[1]--;
             }
         }
         else {
@@ -112,18 +115,25 @@ while (SizeRead[0]>0 || SizeRead[1]>0){
             }
             else{
                 entrada[1].imaginario=valor/32767.0;
+                SizeRead[1]--;
             } 
-        SizeRead[1]--;
+        
         }
         SizeRead[1]--;
     }
-    MULT(entrada[0],entrada[1],&salida);
+    if (canales[0]==1){
+        salida.real=entrada[0].real*entrada[1].real;
+    }
+    else MULT(entrada[0],entrada[1],&salida);
+    
     if (byteSample[0]==1){
         if (canales[0]==1){
     fputc((char)((salida.real)*128)+128,outputf);
        
         }
         else{
+                fputc((char)((salida.real)*128)+128,outputf);
+
              fputc((char)((salida.imaginario)*128)+128,outputf);
         }
     }
@@ -135,7 +145,10 @@ while (SizeRead[0]>0 || SizeRead[1]>0){
          }
         else
         {
-         unsigned int aux=salida.imaginario*32767.0;
+         unsigned int    aux=(salida.real*32767.0);
+		unsigned char signal[2]={(unsigned char)aux,aux>>8};
+        fwrite(signal,1,2,outputf);
+         aux=salida.imaginario*32767.0;
 		unsigned char signal2[2]={(unsigned char)aux,aux>>8};
         fwrite(signal2,1,2,outputf);
 
@@ -155,6 +168,13 @@ return 0;
 void MULT (complex n1, complex n2, complex *n){
  n->real=n1.real*n2.real-n1.imaginario*n2.imaginario;
  n->imaginario=n1.imaginario*n2.real+n1.real*n2.imaginario;
+ n->real/=2;
+ n->imaginario/=2;
+ if (n->real>1.0)n->real=1;
+ if (n->imaginario>1.0)n->imaginario=1;
+ if (n->real<-1.0)n->real=-1;
+ if(n->imaginario<-1.0)n->imaginario=-1;
+
 } 
 
 
