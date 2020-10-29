@@ -28,6 +28,7 @@ for (int i=40,c=0;i<44;i++,c++){
          sizeRead|=header[i]<<(8*c);
         }
 sizeRead/=bytesSample;
+sizeRead/=2;
 
 switch (bytesSample)
 {
@@ -40,7 +41,7 @@ case 1:{
         c1=fgetc(inputf);
         muestras1[i].real=(c1-128)/128.0;
 	c1=fgetc(inputf);
-	muestras1[i++].imaginario=(c1-128)/128.0;
+	muestras1[i].imaginario=(c1-128)/128.0;
     } 
     /*
     Convolucion de 1d a 1d en un solo espacio X[n]
@@ -74,7 +75,7 @@ case 2:{
 	c0=fgetc(inputf);
 	c1=fgetc(inputf);
 		valor=c0|c1<<8;
-	muestras2[i++].imaginario=valor/32767.0;
+	muestras2[i].imaginario=valor/32767.0;
 
     }
     //DFT
